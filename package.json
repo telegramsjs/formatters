@@ -1,0 +1,29 @@
+{
+  "name": "@telegram.ts/formatters",
+  "version": "1.0.0",
+  "description": "Sub-library for formatting Telegram messages",
+  "main": "./dist/index.js",
+  "exports": {
+    "require": "./dist/index.js",
+    "import": "./dist/index.mjs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "./dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "javascript",
+    "typescript",
+    "formatters",
+    "html",
+    "markdownv",
+    "library",
+    "sempai-07"
+  ],
+  "author": "Sempai<zadmanthegreat@gmail.com>"
+}
