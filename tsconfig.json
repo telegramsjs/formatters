@@ -4,14 +4,18 @@
     "module": "nodenext",
     "declaration": true,
     "noEmit": false,
-    "importHelpers": false,
+    "importHelpers": true,
     "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "resolveJsonModule": true,
     "declarationDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   },
   "include": ["./src"]
 }
