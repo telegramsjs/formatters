@@ -1,7 +1,7 @@
 # @telegram.ts/formatters
 
 [![NPM Version](https://img.shields.io/npm/v/@telegram.ts/formatters)](https://www.npmjs.com/package/@telegram.ts/formatters)
-[![Bot API](https://img.shields.io/badge/Bot%20API-v.7.2-00aced.svg?style=flat-square&logo=telegram)](https://core.telegram.org/bots/api)
+[![Bot API](https://img.shields.io/badge/Bot%20API-v.7.4-00aced.svg?style=flat-square&logo=telegram)](https://core.telegram.org/bots/api)
 [![NPM Downloads](https://img.shields.io/npm/dt/@telegram.ts/formatters.svg?maxAge=3600)](https://www.npmjs.com/package/@telegram.ts/formatters)
 [![License](https://img.shields.io/npm/l/@telegram.ts/formatters)](https://github.com/telegramsjs/plugins/blob/main/LICENSE)
 
@@ -39,7 +39,8 @@ import {
     inlineEmoji,
     inlineCode,
     codeBlock,
-    }
+    },
+    parseEntities,
 } from '@telegram.ts/formatters';
 
 // Apply text formatting
@@ -49,7 +50,7 @@ const formattedText = bold('bold text') + '\n' +
     strikethrough('strikethrough') + '\n' +
     spoiler('spoiler');
 
-console.log(formattedText);
+console.log(formattedText, parseEntities(formattedText, "HTML"));
 ```
 
 ## License

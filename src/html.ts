@@ -60,6 +60,14 @@ function inlineCode(text: string): string {
   return `<code>${text}</code>`;
 }
 
+function blockquote(text: string): string {
+  return `<blockquote>${text}</blockquote>`;
+}
+
+function blockquoteExpandable(text: string): string {
+  return `<blockquote expandable>${text}</blockquote>`;
+}
+
 function preFormattedCodeBlock(text: string): string {
   return `<pre>${text}</pre>`;
 }
@@ -69,10 +77,6 @@ function preFormattedCodeBlockLanguage(
   language: TypeSupportedLanguages,
 ): string {
   return `<pre><code class="language-${language}">${text}</code></pre>`;
-}
-
-function blockQuotation(text: string): string {
-  return `<blockquote>${text}</blockquote>`;
 }
 
 export default {
@@ -91,7 +95,8 @@ export default {
   inlineMention,
   inlineEmoji,
   inlineCode,
+  blockquote,
+  blockquoteExpandable,
   preFormattedCodeBlock,
   preFormattedCodeBlockLanguage,
-  blockQuotation,
 };

@@ -1,6 +1,6 @@
 {
   "name": "@telegram.ts/formatters",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Sub-library for formatting Telegram messages",
   "main": "./dist/index.js",
   "exports": {
@@ -33,5 +33,12 @@
     "library",
     "sempai-07"
   ],
-  "author": "Sempai<zadmanthegreat@gmail.com>"
+  "author": "Sempai<zadmanthegreat@gmail.com>",
+  "dependencies": {
+    "jsdom": "^24.1.0"
+  },
+  "devDependencies": {
+    "@telegram.ts/types": "^1.9.0",
+    "@types/jsdom": "^21.1.6"
+  }
 }
