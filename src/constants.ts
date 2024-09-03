@@ -751,4 +751,4 @@ const SupportedLanguages = {
   Zig: ["zig"],
 };
 
-export { TypeSupportedLanguages, SupportedLanguages };
+export { type TypeSupportedLanguages, SupportedLanguages };

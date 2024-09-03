@@ -1,17 +1,17 @@
 {
   "name": "@telegram.ts/formatters",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Sub-library for formatting Telegram messages",
-  "main": "./dist/index.js",
+  "main": "./dist/src/index.js",
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/src/index.js"
       },
       "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
+        "types": "./dist/src/index.d.mts",
+        "default": "./dist/src/index.mjs"
       }
     }
   },
@@ -35,11 +35,8 @@
   ],
   "homepage": "https://telegramsjs.vercel.app/",
   "author": "Sempai<zadmanthegreat@gmail.com>",
-  "dependencies": {
-    "jsdom": "^24.1.0"
-  },
   "devDependencies": {
-    "@telegram.ts/types": "^1.9.0",
-    "@types/jsdom": "^21.1.6"
+    "@telegram.ts/types": "^1.14.2",
+    "@types/node": "^22.1.0"
   }
 }

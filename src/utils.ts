@@ -1,29 +1,85 @@
-import { JSDOM } from "jsdom";
 import type { MessageEntity, ParseMode, User } from "@telegram.ts/types";
 
+/**
+ * Defines the types of entities that can be parsed from text.
+ */
+type TypeEntity =
+  | "mention"
+  | "hashtag"
+  | "cashtag"
+  | "bot_command"
+  | "url"
+  | "email"
+  | "phone_number"
+  | "bold"
+  | "italic"
+  | "underline"
+  | "strikethrough"
+  | "spoiler"
+  | "blockquote"
+  | "code"
+  | "pre"
+  | "text_link"
+  | "text_mention"
+  | "custom_emoji";
+
+/**
+ * Patterns used to match HTML entities in the text.
+ */
+const htmlEntityPatterns: Record<string, RegExp> = {
+  bold: /<b>(.*?)<\/b>|<strong>(.*?)<\/strong>/g,
+  italic: /<i>(.*?)<\/i>|<em>(.*?)<\/em>/g,
+  underline: /<u>(.*?)<\/u>|<ins>(.*?)<\/ins>/g,
+  strikethrough: /<s>(.*?)<\/s>|<strike>(.*?)<\/strike>|<del>(.*?)<\/del>/g,
+  spoiler: /<span class="tg-spoiler">(.*?)<\/span>/g,
+  text_link: /<a href="([^"]+)">(.*?)<\/a>/g,
+  text_mention: /<a href="tg:\/\/user\?id=(\d+)">(.*?)<\/a>/g,
+  custom_emoji: /<tg-emoji emoji-id="([^"]+)">(.*?)<\/tg-emoji>/g,
+  code: /<code>(.*?)<\/code>/g,
+  pre: /<pre>(.*?)<\/pre>/g,
+  blockquote: /<blockquote>(.*?)<\/blockquote>/g,
+};
+
+/**
+ * Patterns used to match Markdown entities in the text.
+ */
+const markdownPatterns: Record<string, RegExp> = {
+  bold: /\*([^\*]+)\*/g,
+  italic: /_([^_]+)_/g,
+  text_link: /\[([^\]]+)\]\((http[^\)]+)\)/g,
+  text_mention: /\[([^\]]+)\]\((tg:\/\/user\?id=\d+)\)/g,
+  code: /`([^`]+)`/g,
+  pre: /```([a-zA-Z]*)\n([\s\S]*?)```/g,
+};
+
+/**
+ * Patterns used to match MarkdownV2 entities in the text.
+ */
+const markdownV2Patterns: Record<string, RegExp> = {
+  ...markdownPatterns,
+  underline: /__([^_]+)__/g,
+  strikethrough: /~([^~]+)~/g,
+  spoiler: /\|\|([^|]+)\|\|/g,
+};
+
+/**
+ * Parses text to extract entities based on the specified format.
+ * @param text - The text to parse for entities.
+ * @param format - The format of the text, either "HTML", "Markdown", or "MarkdownV2".
+ * @returns An array of MessageEntity objects representing the parsed entities.
+ */
 function parseEntities(text: string, format: ParseMode): MessageEntity[] {
   const entities: MessageEntity[] = [];
 
+  /**
+   * Adds an entity to the list of parsed entities.
+   * @param type - The type of the entity.
+   * @param offset - The offset of the entity in the text.
+   * @param length - The length of the entity in the text.
+   * @param extra - Additional properties specific to the entity type.
+   */
   function addEntity(
-    type:
-      | "mention"
-      | "hashtag"
-      | "cashtag"
-      | "bot_command"
-      | "url"
-      | "email"
-      | "phone_number"
-      | "bold"
-      | "italic"
-      | "underline"
-      | "strikethrough"
-      | "spoiler"
-      | "blockquote"
-      | "code"
-      | "pre"
-      | "text_link"
-      | "text_mention"
-      | "custom_emoji",
+    type: TypeEntity,
     offset: number,
     length: number,
     extra: Partial<
@@ -32,147 +88,104 @@ function parseEntities(text: string, format: ParseMode): MessageEntity[] {
       | MessageEntity.TextMentionMessageEntity
       | MessageEntity.CustomEmojiMessageEntity
     > = {},
-  ) {
+  ): void {
     const entity = { type, offset, length, ...extra } as MessageEntity;
     entities.push(entity);
   }
 
-  if (format === "Markdown" || format === "MarkdownV2") {
-    const markdownRegexes: Record<string, RegExp> = {
-      bold: /\*([^\*]+)\*/g,
-      italic: /_([^_]+)_/g,
-      inlineUrl: /\[([^\]]+)\]\((http[^\)]+)\)/g,
-      inlineMention: /\[([^\]]+)\]\((tg:\/\/user\?id=[^\)]+)\)/g,
-      inlineCode: /`([^`]+)`/g,
-      preCodeBlock: /```([a-zA-Z]*)\n([\s\S]*?)```/g,
-    };
+  const entityPatterns =
+    format === "HTML"
+      ? htmlEntityPatterns
+      : format === "MarkdownV2"
+        ? markdownV2Patterns
+        : markdownPatterns;
 
-    if (format === "MarkdownV2") {
-      Object.assign(markdownRegexes, {
-        underline: /__([^_]+)__/g,
-        strikethrough: /~([^~]+)~/g,
-        spoiler: /\|\|([^|]+)\|\|/g,
-      });
-    }
+  for (const [type, regex] of Object.entries(entityPatterns)) {
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const [fullMatch, ...groups] = match;
+      const offset = match.index;
+      const length = fullMatch.length;
 
-    for (const [type, regex] of Object.entries(markdownRegexes)) {
-      let match;
-      while ((match = regex.exec(text)) !== null) {
-        const [fullMatch, content, extra] = match;
-        const offset = match.index;
-        const length = fullMatch.length;
-
-        switch (type) {
-          case "inlineUrl":
-            addEntity("text_link", offset, length, { url: extra as string });
-            break;
-          case "inlineMention":
-            addEntity("text_mention", offset, length, {
-              user: {
-                id: parseInt(extra.split("=")[1], 10),
-              } as User,
-            });
-            break;
-          case "preCodeBlock":
-            addEntity("pre", offset, length, { language: content });
-            break;
-          default:
-            addEntity(type as any, offset, length);
-        }
+      if (type === "text_link") {
+        const url = format === "HTML" ? groups[0] : groups[1];
+        addEntity("text_link", offset, length, { url: url ?? "" });
+      } else if (type === "text_mention") {
+        const userId = parseInt(groups[0] ?? "0", 10);
+        addEntity("text_mention", offset, length, {
+          user: { id: userId } as User,
+        });
+      } else if (type === "custom_emoji") {
+        const customEmojiId = groups[0] ?? "";
+        addEntity("custom_emoji", offset, length, {
+          custom_emoji_id: customEmojiId,
+        });
+      } else if (type === "pre" && format === "MarkdownV2") {
+        const language = groups[0] ?? "";
+        addEntity("pre", offset, length, { language });
+      } else {
+        addEntity(type as TypeEntity, offset, length);
       }
     }
-  } else if (format === "HTML") {
-    const dom = new JSDOM(text);
-    const document = dom.window.document;
-
-    function extractHtmlEntities(
-      node: HTMLElement | ChildNode,
-      offset = 0,
-    ): number {
-      if (node.nodeType === node.TEXT_NODE) {
-        return offset + (node.textContent?.length || 0);
-      }
-
-      if (node.nodeType === node.ELEMENT_NODE) {
-        const element = node as HTMLElement;
-        const startOffset = offset;
-        let innerOffset = offset;
-
-        for (const child of element.childNodes) {
-          innerOffset = extractHtmlEntities(child, innerOffset);
-        }
-
-        const length = innerOffset - startOffset;
-
-        switch (element.tagName.toLowerCase()) {
-          case "b":
-          case "strong":
-            addEntity("bold", startOffset, length);
-            break;
-          case "i":
-          case "em":
-            addEntity("italic", startOffset, length);
-            break;
-          case "u":
-          case "ins":
-            addEntity("underline", startOffset, length);
-            break;
-          case "s":
-          case "strike":
-          case "del":
-            addEntity("strikethrough", startOffset, length);
-            break;
-          case "span":
-            if (element.classList.contains("tg-spoiler")) {
-              addEntity("spoiler", startOffset, length);
-            }
-            break;
-          case "a":
-            const href = element.getAttribute("href") || "";
-            if (href.startsWith("tg://user?id=")) {
-              addEntity("text_mention", startOffset, length, {
-                user: {
-                  id: parseInt(href.split("=")[1], 10),
-                  is_bot: false,
-                  first_name: "",
-                },
-              });
-            } else {
-              addEntity("text_link", startOffset, length, { url: href });
-            }
-            break;
-          case "tg-emoji":
-            addEntity("custom_emoji", startOffset, length, {
-              custom_emoji_id: element.getAttribute("emoji-id") || undefined,
-            });
-            break;
-          case "code":
-            addEntity("code", startOffset, length);
-            break;
-          case "pre":
-            const codeChild = element.querySelector("code");
-            if (codeChild) {
-              const language = codeChild.className.split("-")[1];
-              addEntity("pre", startOffset, length, { language });
-            } else {
-              addEntity("pre", startOffset, length);
-            }
-            break;
-          case "blockquote":
-            addEntity("blockquote", startOffset, length);
-            break;
-        }
-
-        return innerOffset;
-      }
-
-      return offset;
-    }
-
-    extractHtmlEntities(document.body);
   }
 
   return entities.sort((a, b) => a.offset - b.offset);
 }
 
-export { parseEntities };
+/**
+ * Escapes HTML special characters in a string.
+ * @param content - The content to escape.
+ * @returns The escaped string.
+ */
+function escapeHTML(content: string): string {
+  const escapables: Record<string, string> = {
+    "<": "&lt;",
+    ">": "&gt;",
+    "&": "&amp;",
+  };
+
+  return content.replace(/[<>&]/g, (char) => escapables[char] ?? char);
+}
+
+/**
+ * Escapes Markdown special characters in a string.
+ * @param content - The content to escape.
+ * @returns The escaped string.
+ */
+function escapeMarkdown(content: string): string {
+  const escapables: Record<string, string> = {
+    _: "\\_",
+    "*": "\\*",
+    "[": "\\[",
+    "]": "\\]",
+    "(": "\\(",
+    ")": "\\)",
+    "~": "\\~",
+    "`": "\\`",
+    ">": "\\>",
+    "#": "\\#",
+    "+": "\\+",
+    "-": "\\-",
+    "=": "\\=",
+    "|": "\\|",
+    "{": "\\{",
+    "}": "\\}",
+    ".": "\\.",
+    "!": "\\!",
+  };
+
+  return content.replace(
+    /[_*\[\]()~`>#\+\-=|{}.!]/g,
+    (char) => escapables[char] ?? char,
+  );
+}
+
+export {
+  parseEntities,
+  escapeHTML,
+  escapeMarkdown,
+  htmlEntityPatterns,
+  markdownPatterns,
+  markdownV2Patterns,
+  type TypeEntity,
+};
