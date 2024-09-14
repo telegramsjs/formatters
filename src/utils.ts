@@ -1,4 +1,5 @@
-import type { MessageEntity, ParseMode, User } from "@telegram.ts/types";
+import type { MessageEntity } from "./type";
+import type { ParseMode } from "@telegram.ts/types";
 
 /**
  * Defines the types of entities that can be parsed from text.
@@ -111,14 +112,13 @@ function parseEntities(text: string, format: ParseMode): MessageEntity[] {
         const url = format === "HTML" ? groups[0] : groups[1];
         addEntity("text_link", offset, length, { url: url ?? "" });
       } else if (type === "text_mention") {
-        const userId = parseInt(groups[0] ?? "0", 10);
         addEntity("text_mention", offset, length, {
-          user: { id: userId } as User,
+          user: { id: groups[0] ?? "0" },
         });
       } else if (type === "custom_emoji") {
         const customEmojiId = groups[0] ?? "";
         addEntity("custom_emoji", offset, length, {
-          custom_emoji_id: customEmojiId,
+          customEmojiId: customEmojiId,
         });
       } else if (type === "pre" && format === "MarkdownV2") {
         const language = groups[0] ?? "";
