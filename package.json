@@ -1,8 +1,9 @@
 {
   "name": "@telegram.ts/formatters",
-  "version": "1.2.0",
-  "description": "Sub-library for formatting Telegram messages",
+  "version": "2.1.0",
+  "description": "Powerful text formatting library for Telegram Bot API with HTML and MarkdownV2 support",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "require": {
@@ -31,15 +32,18 @@
     "html",
     "markdownv",
     "library",
-    "sempai-07"
+    "sempai-07",
+    "telegramsjs",
+    "bot"
   ],
   "homepage": "https://telegramsjs.vercel.app/",
   "author": "Sempai<zadmanthegreat@gmail.com>",
-  "dependencies": {
-    "jsdom": "^24.1.0"
-  },
   "devDependencies": {
-    "@telegram.ts/types": "^1.9.0",
-    "@types/jsdom": "^21.1.6"
+    "@telegram.ts/types": "^1.24.0",
+    "@types/node": "^25.0.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
   }
 }

@@ -1,8 +1,8 @@
-import { escapeHTML } from "./utils";
+import { escapeMarkdownV2 } from "./utils";
 
 /**
- * HTML formatting functions for Telegram messages
- * @see https://core.telegram.org/bots/api#html-style
+ * MarkdownV2 formatting functions for Telegram messages
+ * @see https://core.telegram.org/bots/api#markdownv2-style
  */
 
 /**
@@ -10,10 +10,10 @@ import { escapeHTML } from "./utils";
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * bold("Hello") // "<b>Hello</b>"
+ * bold("Hello") // "*Hello*"
  */
 function bold(text: string): string {
-  return `<b>${escapeHTML(text)}</b>`;
+  return `*${escapeMarkdownV2(text)}*`;
 }
 
 /**
@@ -21,10 +21,10 @@ function bold(text: string): string {
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * italic("Hello") // "<i>Hello</i>"
+ * italic("Hello") // "_Hello_"
  */
 function italic(text: string): string {
-  return `<i>${escapeHTML(text)}</i>`;
+  return `_${escapeMarkdownV2(text)}_`;
 }
 
 /**
@@ -32,10 +32,10 @@ function italic(text: string): string {
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * underline("Hello") // "<u>Hello</u>"
+ * underline("Hello") // "__Hello__"
  */
 function underline(text: string): string {
-  return `<u>${escapeHTML(text)}</u>`;
+  return `__${escapeMarkdownV2(text)}__`;
 }
 
 /**
@@ -43,10 +43,10 @@ function underline(text: string): string {
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * strikethrough("Hello") // "<s>Hello</s>"
+ * strikethrough("Hello") // "~Hello~"
  */
 function strikethrough(text: string): string {
-  return `<s>${escapeHTML(text)}</s>`;
+  return `~${escapeMarkdownV2(text)}~`;
 }
 
 /**
@@ -54,10 +54,10 @@ function strikethrough(text: string): string {
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * spoiler("Secret") // "<span class=\"tg-spoiler\">Secret</span>"
+ * spoiler("Secret") // "||Secret||"
  */
 function spoiler(text: string): string {
-  return `<span class="tg-spoiler">${escapeHTML(text)}</span>`;
+  return `||${escapeMarkdownV2(text)}||`;
 }
 
 /**
@@ -65,10 +65,10 @@ function spoiler(text: string): string {
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * blockquote("Quote") // "<blockquote>Quote</blockquote>"
+ * blockquote("Quote") // ">Quote"
  */
 function blockquote(text: string): string {
-  return `<blockquote>${escapeHTML(text)}</blockquote>`;
+  return `>${escapeMarkdownV2(text)}`;
 }
 
 /**
@@ -76,10 +76,10 @@ function blockquote(text: string): string {
  * @param text - Text to format
  * @returns Formatted text
  * @example
- * expandableBlockquote("Long quote") // "<blockquote expandable>Long quote</blockquote>"
+ * expandableBlockquote("Long quote") // "**>Long quote"
  */
 function expandableBlockquote(text: string): string {
-  return `<blockquote expandable>${escapeHTML(text)}</blockquote>`;
+  return `**>${escapeMarkdownV2(text)}`;
 }
 
 /**
@@ -88,10 +88,10 @@ function expandableBlockquote(text: string): string {
  * @param url - URL
  * @returns Formatted link
  * @example
- * inlineURL("Google", "https://google.com") // "<a href=\"https://google.com\">Google</a>"
+ * inlineURL("Google", "https://google.com") // "[Google](https://google.com)"
  */
 function inlineURL(text: string, url: string): string {
-  return `<a href="${escapeHTML(url)}">${escapeHTML(text)}</a>`;
+  return `[${escapeMarkdownV2(text)}](${escapeMarkdownV2(url)})`;
 }
 
 /**
@@ -100,10 +100,10 @@ function inlineURL(text: string, url: string): string {
  * @param userId - User ID
  * @returns Formatted mention
  * @example
- * inlineMention("John", 123456789) // "<a href=\"tg://user?id=123456789\">John</a>"
+ * inlineMention("John", 123456789) // "[John](tg://user?id=123456789)"
  */
 function inlineMention(text: string, userId: number): string {
-  return `<a href="tg://user?id=${userId}">${escapeHTML(text)}</a>`;
+  return `[${escapeMarkdownV2(text)}](tg://user?id=${userId})`;
 }
 
 /**
@@ -111,10 +111,11 @@ function inlineMention(text: string, userId: number): string {
  * @param text - Code text
  * @returns Formatted code
  * @example
- * inlineCode("const x = 1") // "<code>const x = 1</code>"
+ * inlineCode("const x = 1") // "`const x = 1`"
  */
 function inlineCode(text: string): string {
-  return `<code>${escapeHTML(text)}</code>`;
+  // Code blocks don't need escaping in MarkdownV2
+  return `\`${text}\``;
 }
 
 /**
@@ -123,13 +124,13 @@ function inlineCode(text: string): string {
  * @param language - Programming language for syntax highlighting
  * @returns Formatted code block
  * @example
- * codeBlock("const x = 1", "javascript") // "<pre><code class=\"language-javascript\">const x = 1</code></pre>"
+ * codeBlock("const x = 1", "javascript") // "```javascript\nconst x = 1\n```"
  */
 function codeBlock(text: string, language?: string): string {
   if (language) {
-    return `<pre><code class="language-${escapeHTML(language)}">${escapeHTML(text)}</code></pre>`;
+    return `\`\`\`${language}\n${text}\n\`\`\``;
   }
-  return `<pre>${escapeHTML(text)}</pre>`;
+  return `\`\`\`\n${text}\n\`\`\``;
 }
 
 /**
@@ -138,10 +139,10 @@ function codeBlock(text: string, language?: string): string {
  * @param emojiId - Custom emoji ID
  * @returns Formatted emoji
  * @example
- * inlineEmoji("👍", "5368324170671202286") // "<tg-emoji emoji-id=\"5368324170671202286\">👍</tg-emoji>"
+ * inlineEmoji("👍", "5368324170671202286") // "![👍](tg://emoji?id=5368324170671202286)"
  */
 function inlineEmoji(emoji: string, emojiId: string): string {
-  return `<tg-emoji emoji-id="${emojiId}">${emoji}</tg-emoji>`;
+  return `![${emoji}](tg://emoji?id=${emojiId})`;
 }
 
 /**
@@ -150,7 +151,7 @@ function inlineEmoji(emoji: string, emojiId: string): string {
  * @param separator - Separator between parts
  * @returns Combined string
  * @example
- * combine([bold("Hello"), italic("World")], " ") // "<b>Hello</b> <i>World</i>"
+ * combine([bold("Hello"), italic("World")], " ") // "*Hello* _World_"
  */
 function combine(parts: string[], separator: string = ""): string {
   return parts.join(separator);
@@ -163,12 +164,12 @@ function combine(parts: string[], separator: string = ""): string {
  * @returns Formatted list
  * @example
  * list(["Item 1", "Item 2"]) // "• Item 1\n• Item 2"
- * list(["Item 1", "Item 2"], true) // "1. Item 1\n2. Item 2"
+ * list(["Item 1", "Item 2"], true) // "1\\. Item 1\n2\\. Item 2"
  */
 function list(items: string[], ordered: boolean = false): string {
   return items
     .map((item, index) => {
-      const prefix = ordered ? `${index + 1}. ` : "• ";
+      const prefix = ordered ? `${index + 1}\\. ` : "• ";
       return `${prefix}${item}`;
     })
     .join("\n");
@@ -180,12 +181,12 @@ export {
   underline,
   strikethrough,
   spoiler,
+  codeBlock,
   blockquote,
   expandableBlockquote,
   inlineURL,
   inlineMention,
   inlineCode,
-  codeBlock,
   inlineEmoji,
   combine,
   list,

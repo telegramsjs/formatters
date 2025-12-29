@@ -1,15 +1,26 @@
-import html from "./html";
-import markdownv from "./markdownv";
-import { parseEntities } from "./utils";
-import { version } from "../package.json";
-import { type TypeSupportedLanguages, SupportedLanguages } from "./constants";
+/**
+ * @telegram.ts/formatters
+ * Powerful text formatting library for Telegram Bot API
+ *
+ * @license MIT
+ * @see https://core.telegram.org/bots/api
+ */
 
-export default { html, markdownv, parseEntities, version, SupportedLanguages };
-export {
+import * as htmlFormatters from "./html";
+import * as markdownv2Formatters from "./markdownv2";
+import * as markdownFormatters from "./markdown";
+
+export const html = htmlFormatters;
+export const markdown = markdownFormatters;
+export const markdownv2 = markdownv2Formatters;
+export const version = "2.1.0";
+
+export * from "./utils";
+export * from "./parser";
+
+export default {
   html,
-  markdownv,
-  parseEntities,
+  markdownv2,
+  markdown,
   version,
-  TypeSupportedLanguages,
-  SupportedLanguages,
 };
